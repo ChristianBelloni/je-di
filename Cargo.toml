@@ -1,0 +1,16 @@
+[package]
+name = "trait-di"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+async-trait = { version = "0.1.89", optional = true }
+axum = { version = "0.8.6", optional = true }
+
+[features]
+axum = ["dep:axum", "async"]
+async = ["dep:async-trait"]
+
+[dev-dependencies]
+tokio = { version = "1.48.0", features = ["full"] }
+axum = { version = "0.8.6", features = ["macros"] }
