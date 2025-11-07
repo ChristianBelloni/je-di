@@ -1,7 +1,7 @@
 je-di, compile time Hierarchical dependency injection framework
 
 # Basic usage
-```
+```rust
 // Define your 'World', in other words all the _always_ available structs and enums used by your
 // application
 
