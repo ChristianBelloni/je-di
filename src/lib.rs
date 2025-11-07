@@ -1,15 +1,20 @@
 #![doc = include_str!("../README.md")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "axum")]
+#[cfg_attr(docsrs, doc(cfg(feature = "axum")))]
 pub mod axum;
 
 #[cfg(feature = "async")]
+#[cfg_attr(docsrs, doc(cfg(feature = "async")))]
 pub mod async_dependency;
 
 #[cfg(feature = "async")]
+#[cfg_attr(docsrs, doc(cfg(feature = "async")))]
 pub use async_dependency::*;
 
 #[cfg(feature = "async")]
+#[cfg_attr(docsrs, doc(cfg(feature = "async")))]
 pub use async_trait::async_trait;
 
 /// # Entry point to je-di
@@ -143,6 +148,7 @@ impl<World> DIContainer<World> {
 }
 
 #[cfg(feature = "async")]
+#[cfg_attr(docsrs, doc(cfg(feature = "async")))]
 impl<World> DIContainer<World> {
     pub async fn extract_async<
         T: for<'a> crate::async_dependency::FromAsyncWorld<World<'a> = World>,

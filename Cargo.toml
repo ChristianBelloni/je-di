@@ -1,6 +1,6 @@
 [package]
 name = "je-di"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 license = "MIT"
 description = "Hierarchical dependency injection"
@@ -17,3 +17,7 @@ async = ["dep:async-trait"]
 tokio = { version = "1.48.0", features = ["full"] }
 async-trait = { version = "0.1.89" }
 axum = { version = "0.8.6", features = ["macros"] }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
