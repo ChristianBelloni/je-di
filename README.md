@@ -1,4 +1,6 @@
-# je-di, compile time hierarchical dependency injection framework
+# je-di 
+
+compile time hierarchical dependency injection framework
 
 ## Features
 
