@@ -1,4 +1,4 @@
-je-di, compile time Hierarchical dependency injection framework
+je-di, compile time hierarchical dependency injection framework
 
 # Basic usage
 ```rust
