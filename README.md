@@ -1,12 +1,12 @@
-je-di, compile time hierarchical dependency injection framework
+# je-di, compile time hierarchical dependency injection framework
 
-# Features
+## Features
 
  - Compile time check for correct dependency registration
  - Seamless* [axum integration](#axum-integration)
  - sync/async variants
 
-# Known limitations and caveats
+## Known limitations and caveats
  - A dependency tree must share the same underlying type
  - No way to register a generic dependency, (other than boxing a trait object)
  - No way to pass by reference a dependency
