@@ -4,8 +4,8 @@ use axum::{
     response::IntoResponse,
     routing::get,
 };
+use je_di::{axum::Dependency, axum_dependency, axum_world};
 use tokio::net::TcpListener;
-use trait_di::{axum::Dependency, axum_dependency, axum_world};
 
 #[tokio::main]
 async fn main() {

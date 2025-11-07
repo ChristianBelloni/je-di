@@ -1,5 +1,5 @@
 [package]
-name = "trait-di"
+name = "je-di"
 version = "0.0.1"
 edition = "2024"
 

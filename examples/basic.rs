@@ -1,5 +1,5 @@
+use je_di::{DIContainer, FromDependency, FromWorld, async_trait};
 use std::io::{BufRead, BufReader};
-use trait_di::{DIContainer, FromDependency, FromWorld, async_trait};
 
 struct World {
     username: String,

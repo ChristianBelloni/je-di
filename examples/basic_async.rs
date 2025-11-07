@@ -1,9 +1,9 @@
-use tokio::io::{AsyncBufReadExt, BufReader};
-use trait_di::{
+use je_di::{
     DIContainer,
     async_dependency::{FromAsyncDependency, FromAsyncWorld},
     async_trait,
 };
+use tokio::io::{AsyncBufReadExt, BufReader};
 
 struct World {
     username: String,
