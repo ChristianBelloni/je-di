@@ -1,11 +1,12 @@
 # je-di 
 
 [![Crates.io][crates-badge]][crates-url]
-[![MIT licensed][mit-badge]]
+[![MIT licensed][mit-badge]][mit-url]
 
 [crates-badge]: https://img.shields.io/crates/v/je-di.svg
 [crates-url]: https://crates.io/crates/je-di
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-url]: https://github.com/ChristianBelloni/je-di/blob/master/README.md
 
 compile time hierarchical dependency injection framework
 
