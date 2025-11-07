@@ -14,7 +14,7 @@ pub trait FromAsyncWorld: 'static {
 pub trait FromAsyncDependency: 'static {
     type Error: Send + Sync;
     type World<'a>: Send + Sync;
-    type Dependency: for<'a> FromAsyncWorld<World<'a> = Self::World<'a>, Error = Self::Error> + Send;
+    type Dependency: for<'a> FromAsyncWorld<World<'a> = Self::World<'a>> + Send;
 
     async fn from_dependency(
         world: &Self::World<'_>,
@@ -29,6 +29,7 @@ impl<T> FromAsyncWorld for T
 where
     T: FromAsyncDependency,
     T::Dependency: FromAsyncWorld,
+    T::Error: From<<T::Dependency as FromAsyncWorld>::Error>,
 {
     type Error = T::Error;
     type World<'a> = T::World<'a>;

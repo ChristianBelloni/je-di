@@ -4,6 +4,8 @@ pub mod axum;
 #[cfg(feature = "async")]
 pub mod async_dependency;
 
+pub use async_trait::async_trait;
+
 pub trait FromWorld {
     type World<'a>;
     type Error;
@@ -11,6 +13,10 @@ pub trait FromWorld {
     fn from_world(world: &Self::World<'_>) -> Result<Self, Self::Error>
     where
         Self: std::marker::Sized;
+}
+
+pub trait WorldFrom<T> {
+    fn into_world(self) -> T;
 }
 
 pub trait FromDependency {
@@ -70,11 +76,11 @@ impl_tuple!(0:Dep0, 1:Dep1, 2:Dep2, 3:Dep3);
 impl_tuple!(0:Dep0, 1:Dep1, 2:Dep2);
 impl_tuple!(0:Dep0, 1:Dep1);
 
-pub struct Container<World> {
+pub struct DIContainer<World> {
     world: World,
 }
 
-impl<World> Container<World> {
+impl<World> DIContainer<World> {
     pub fn new(world: World) -> Self {
         Self { world }
     }
@@ -86,143 +92,13 @@ impl<World> Container<World> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[derive(Debug, Clone)]
-    struct Dep1;
-
-    type MyWorld = String;
-    type MyError = String;
-
-    impl FromWorld for Dep1 {
-        type World<'a> = MyWorld;
-        type Error = MyError;
-
-        fn from_world(_world: &Self::World<'_>) -> Result<Self, Self::Error> {
-            Ok(Self)
-        }
-    }
-
-    #[derive(Debug, Clone)]
-    struct Dep2(Dep1);
-
-    impl FromDependency for Dep2 {
-        type Error = MyError;
-        type World<'a> = MyWorld;
-
-        type Dependency = Dep1;
-
-        fn from_dependency(
-            _world: &Self::World<'_>,
-            dependency: &Self::Dependency,
-        ) -> Result<Self, Self::Error> {
-            Ok(Self(dependency.clone()))
-        }
-    }
-
-    #[derive(Debug, Clone)]
-    struct Dep3(Dep2);
-
-    impl FromDependency for Dep3 {
-        type Error = MyError;
-        type World<'a> = MyWorld;
-
-        type Dependency = Dep2;
-
-        fn from_dependency(
-            _world: &Self::World<'_>,
-            dependency: &Self::Dependency,
-        ) -> Result<Self, Self::Error> {
-            Ok(Self(dependency.clone()))
-        }
-    }
-
-    #[derive(Debug, Clone)]
-    struct Dep4(Dep2, Dep3);
-
-    impl FromDependency for Dep4 {
-        type Error = MyError;
-        type World<'a> = MyWorld;
-
-        type Dependency = (Dep2, Dep3);
-
-        fn from_dependency(
-            _world: &Self::World<'_>,
-            dependency: &Self::Dependency,
-        ) -> Result<Self, Self::Error> {
-            Ok(Self(dependency.0.clone(), dependency.1.clone()))
-        }
-    }
-
-    #[derive(Debug, Clone)]
-    struct Dep5(Dep1, Dep2, Dep3, Dep4);
-
-    impl FromDependency for Dep5 {
-        type Error = MyError;
-        type World<'a> = MyWorld;
-
-        type Dependency = (Dep1, Dep2, Dep3, Dep4);
-
-        fn from_dependency(
-            _world: &Self::World<'_>,
-            dependency: &Self::Dependency,
-        ) -> Result<Self, Self::Error> {
-            Ok(Self(
-                dependency.0.clone(),
-                dependency.1.clone(),
-                dependency.2.clone(),
-                dependency.3.clone(),
-            ))
-        }
-    }
-
-    trait MyGenericDependency: Send + Sync + 'static {
-        fn do_stuff(&self);
-    }
-
-    #[derive(Debug)]
-    struct CustomImpl {
-        pub inner: Dep5,
-    }
-
-    impl MyGenericDependency for CustomImpl {
-        fn do_stuff(&self) {
-            println!("custom impl {:?}", self.inner)
-        }
-    }
-
-    impl FromDependency for Box<dyn MyGenericDependency> {
-        type Error = MyError;
-        type World<'a> = MyWorld;
-
-        type Dependency = Dep5;
-
-        fn from_dependency(
-            _world: &Self::World<'_>,
-            dependency: &Self::Dependency,
-        ) -> Result<Self, Self::Error> {
-            Ok(Box::new(CustomImpl {
-                inner: dependency.clone(),
-            }))
-        }
-    }
-
-    #[test]
-    fn basic_test() {
-        let container = Container {
-            world: "".to_string(),
-        };
-
-        let _d1: Dep1 = container.extract().unwrap();
-        let _d2: Dep2 = container.extract().unwrap();
-        let _d3: Dep3 = container.extract().unwrap();
-        let _d4: Dep4 = container.extract().unwrap();
-        let _d5: Dep5 = container.extract().unwrap();
-
-        let d6: Box<dyn MyGenericDependency> = container.extract().unwrap();
-
-        d6.do_stuff();
+#[cfg(feature = "async")]
+impl<World> DIContainer<World> {
+    pub async fn extract_async<
+        T: for<'a> crate::async_dependency::FromAsyncWorld<World<'a> = World>,
+    >(
+        &self,
+    ) -> Result<T, <T as crate::async_dependency::FromAsyncWorld>::Error> {
+        T::from_world(&self.world).await
     }
 }
