@@ -2,6 +2,8 @@
 name = "je-di"
 version = "0.0.1"
 edition = "2024"
+license = "MIT"
+description = "Hierarchical dependency injection"
 
 [dependencies]
 async-trait = { version = "0.1.89", optional = true }
