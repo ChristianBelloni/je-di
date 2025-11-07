@@ -40,6 +40,7 @@ struct ValidatedUser(u64);
 
 axum_world! {
     async fn from_world(parts: &Parts, _state: &DBConnection) -> Result<AuthHeader, StatusCode> {
+
         if let Some(header) = parts.headers.get(&AUTHORIZATION) {
             Ok(Self(
                 header
@@ -54,13 +55,14 @@ axum_world! {
 }
 
 axum_world! {
-    async fn from_world(_parts: &Parts, state: &DBConnection) -> Result<DBConnection, StatusCode> {
+    async fn from_world(_p: &Parts, state: &DBConnection) -> Result<DBConnection, StatusCode> {
         Ok(state.clone())
     }
 }
 
 axum_dependency! {
-    async fn from_dependency(parts: &Parts, state: &DBConnection, header: &AuthHeader) -> Result<ValidatedUser, StatusCode> {
+    async fn from_dependency(_p: &Parts, state: &DBConnection, header: &AuthHeader) -> Result<ValidatedUser, StatusCode> {
+
          let user_id = match state.get_user_id(header.0.clone()).await {
              Ok(user_id) => user_id,
              Err(_) => return Err(StatusCode::UNAUTHORIZED),

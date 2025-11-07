@@ -1,4 +1,4 @@
-//! Je-DI, compile time Hierarchical dependency injection framework
+//! je-di, compile time Hierarchical dependency injection framework
 //!
 //! # Basic usage
 //! ```
@@ -34,6 +34,12 @@
 //!     client: Client
 //! }
 //!
+//! impl ServiceClient {
+//!     async fn call_service(&self) -> std::io::Result<u64> {
+//!         Ok(self.client.call_service(&self.url).await?)
+//!     }
+//! }
+//!
 //! // Then implement FromWorld/FromAsyncWorld for all these types
 //!
 //! use je_di::FromAsyncWorld;
@@ -49,8 +55,10 @@
 //!     }
 //! }
 //!
-//! // Then you can define all the tree of dependencies starting from World and first level
+//! // Then you can define the tree of dependencies starting from World and first level
 //! // dependencies
+//!
+//! use je_di::{FromAsyncDependency, DIContainer};
 //!
 //! pub struct MeId(u64);
 //!
@@ -61,9 +69,25 @@
 //!     type Dependency = ServiceClient;
 //!
 //!     async fn from_dependency(world: &Self::World<'_>, dependency: &Self::Dependency) -> Result<Self, Self::Error> {
-//!         let this = dependency.call_service(&dependency.url).await?;
-//!         Self(this)
+//!         let this = dependency.call_service().await?;
+//!         Ok(Self(this))
 //!     }
+//! }
+//!
+//! // Then using DIContainer extract all the necessary dependencies from your application
+//!
+//! async fn run_application(service_url: &'static str, connection_str: &str) -> std::io::Result<()> {
+//!     let world = World {
+//!         service_url,
+//!         http_client: Client::new(),
+//!         db_connection: DBConnection::new(connection_str)?
+//!     };
+//!
+//!     let container = DIContainer::new(world);
+//!
+//!     let meid: MeId = container.extract_async().await?;
+//!
+//!     Ok(())
 //! }
 //! ```
 
@@ -79,6 +103,29 @@ pub use async_dependency::*;
 #[cfg(feature = "async")]
 pub use async_trait::async_trait;
 
+/// # Entry point to je-di
+///
+/// Describes a struct that can be constructed from a given World
+///
+/// you can associate a type to a single World
+///
+/// # Usage
+/// ```ignore
+/// use je-di::FromWorld;
+///
+/// struct MyWorld(String);
+///
+/// struct MyDependency(String);
+///
+/// impl je_di::FromWorld for MyDependency {
+///     type World<'a> = MyWorld;
+///     type Error = MyError;
+///
+///     fn from_world<'a>(world: &'a Self::World<'a>) -> Result<Self, Self::Error> {
+///         Ok(Self(world.0.clone()))
+///     }
+/// }
+/// ```
 pub trait FromWorld {
     type World<'a>;
     type Error;
@@ -88,10 +135,31 @@ pub trait FromWorld {
         Self: std::marker::Sized;
 }
 
-pub trait WorldFrom<T> {
-    fn into_world(self) -> T;
-}
-
+/// # Defines a dependency
+///
+/// Describes a struct that can be constructed from a world and a dependency that implements
+/// FromWorld for the same World
+///
+/// # Usage
+/// ```ignore
+/// use je_di::FromDependency;
+///
+/// pub struct MyNestedDependency(OtherDependency);
+///
+/// impl FromDependency for MyNestedDependency {
+///     type World<'a> = MyWorld;
+///     type Error = MyError;
+///     type Dependency = OtherDependency;
+///
+///     fn from_dependency(
+///         _world: &Self::World,
+///         dependency: &Self::Dependency
+///     ) -> Result<Self, Self::Error> {
+///         Ok(Self(dependency.clone()))
+///     }
+/// }
+///
+/// ```
 pub trait FromDependency {
     type Error;
     type World<'a>;
