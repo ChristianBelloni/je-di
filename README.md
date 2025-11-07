@@ -2,9 +2,12 @@
 
 [![Crates.io][crates-badge]][crates-url]
 [![MIT licensed][mit-badge]][mit-url]
+[![Documentation][docs-badge]][docs-url]
 
 [crates-badge]: https://img.shields.io/crates/v/je-di.svg
 [crates-url]: https://crates.io/crates/je-di
+[docs-badge]: https://docs.rs/je-di/badge.svg
+[docs-url]: https://docs.rs/je-di
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [mit-url]: https://github.com/ChristianBelloni/je-di/blob/master/README.md
 
